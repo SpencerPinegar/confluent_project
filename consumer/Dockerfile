@@ -3,9 +3,8 @@ FROM apache/flink:1.15.2-scala_2.12
 
 # Switch to root user to install additional dependencies
 USER root
-EXPOSE 6123
-EXPOSE 8081
-ENV PYFLINK_GATEWAY_PORT='6123'
+EXPOSE 6125
+ENV PYFLINK_GATEWAY_PORT='6125'
 ENV PYFLINK_GATEWAAY_ADDRESS='jobmanager'
 
 # Install Python 3 and necessary packages
@@ -32,6 +31,8 @@ RUN curl -L https://repo.maven.apache.org/maven2/org/apache/flink/flink-connecto
 
 # Switch back to Flink user
 USER flink
-
+EXPOSE 6125
+ENV PYFLINK_GATEWAY_PORT='6125'
+ENV PYFLINK_GATEWAAY_ADDRESS='jobmanager'
 # Define the default command to run the Flink job
-CMD ["python", "/opt/app/main.py"]
+CMD ["flink", "run", "-py", "/opt/app/main.py"]

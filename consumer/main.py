@@ -9,7 +9,9 @@ from pyflink.datastream.window import TumblingEventTimeWindows
 from pyflink.common.time import Time
 
 
-os.environ['PYFLINK_GATEWAY_PORT'] = '6123'  # Or any free port
+
+# Set up connection to remote JobManager
+os.environ['PYFLINK_GATEWAY_PORT'] = '6122'  # Or any free port
 os.environ['PYFLINK_GATEWAY_ADDRESS'] = 'jobmanager'
 
 CONFIG = {
@@ -59,7 +61,7 @@ def map_order_to_product(order_str):
 # Main Flink job definition
 def top_selling_products():
     # Set up the execution environment
-    env = StreamExecutionEnvironment.StreamExecutionEnvironment.create_remote_environment('jobmanager', 6123)
+    env = StreamExecutionEnvironment.get_execution_environment(CONFIG)
 
     # Add Kafka consumer as a source to the data stream
     kafka_consumer = create_kafka_consumer()
@@ -89,6 +91,7 @@ def top_selling_products():
 
     # Execute the job
     env.execute("Top Selling Products Job")
+    print('finished')
 
 # Run the Flink job
 if __name__ == '__main__':

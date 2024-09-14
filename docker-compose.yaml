@@ -6,26 +6,41 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
     ports:
       - "2181:2181"
+    networks:
+      - flink-network
 
   jobmanager:
     image: flink:latest
     command: jobmanager
+    expose:
+      - "6123"
     environment:
       - |
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 6
     ports:
       - "8081:8081"
+    networks:
+      - flink-network
 
   taskmanager:
-    image: flink:latest
-    command: taskmanager
+    expose:
+      - "6121"
+      - "6122"
+    links:
+      - "jobmanager:jobmanager"
     environment:
       - |
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 6
+    image: flink:latest
+    command: taskmanager
     depends_on:
       - jobmanager
+    networks:
+      - flink-network
 
   producer:
     build:
@@ -33,9 +48,12 @@ services:
       dockerfile: producer/Dockerfile  # Points to producer Dockerfile
     depends_on:
       - jobmanager
-      - taskmanager
+    networks:
+      - flink-network
 
   flink:
+    expose:
+      - "6125"
     build:
       context: .
       dockerfile: consumer/Dockerfile  # Points to Flink Dockerfile
@@ -45,6 +63,9 @@ services:
         jobmanager.rpc.address: jobmanager
     depends_on:
       - jobmanager
-      - taskmanager
-    ports:
-      - "6123:6123"
+    networks:
+      - flink-network
+
+networks:
+  flink-network:
+    driver: bridge
