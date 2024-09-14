@@ -1,0 +1,50 @@
+version: '3'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    ports:
+      - "2181:2181"
+
+  jobmanager:
+    image: flink:latest
+    command: jobmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+    ports:
+      - "8081:8081"
+
+  taskmanager:
+    image: flink:latest
+    command: taskmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+    depends_on:
+      - jobmanager
+
+  producer:
+    build:
+      context: .
+      dockerfile: producer/Dockerfile  # Points to producer Dockerfile
+    depends_on:
+      - jobmanager
+      - taskmanager
+
+  flink:
+    build:
+      context: .
+      dockerfile: consumer/Dockerfile  # Points to Flink Dockerfile
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+    depends_on:
+      - jobmanager
+      - taskmanager
+    ports:
+      - "6123:6123"
