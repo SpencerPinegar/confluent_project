@@ -12,8 +12,8 @@ Prompt: You will be provided a GitHub repository during the interview.  Use the 
 - Use flink to pull events from orders and report the top selling orders in a seperate stream
 
 ## Structure
-/consumer - a flink based consumer that monitors the orders topic and find the best selling products and uploads them to a seperate topic.
-/producer - a classic confluent producer that randomly produces events on the orders topic
+* /consumer - a flink based consumer that monitors the orders topic and find the best selling products and uploads them to a seperate topic.
+* /producer - a classic confluent producer that randomly produces events on the orders topic
 
 
 
